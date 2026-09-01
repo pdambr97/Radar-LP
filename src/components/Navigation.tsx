@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { RADAR_CONSTANTS } from '@/lib/constants'
+import { RadarLogo } from '@/components/RadarLogo'
 
 interface HeaderProps {
   onSubscribeClick?: () => void
@@ -53,45 +54,40 @@ export function Header({ onSubscribeClick }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-colors duration-150 bg-[#FAFAF7]/95 backdrop-blur-sm ${
-        scrolled ? 'border-b border-[#E2E5DF]' : 'border-b border-transparent'
+      className={`sticky top-0 z-50 w-full transition-colors duration-150 bg-[#FBFAF6]/95 backdrop-blur-sm ${
+        scrolled ? 'border-b border-[#E7E5DC]' : 'border-b border-transparent'
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Brand Block */}
+        {/* Brand Block with official logo */}
         <Link
           to="/"
-          className="group flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-[#245C45] rounded-sm py-1"
-          aria-label="RADAR da geração - Página inicial"
+          className="group flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] rounded-sm py-1"
+          aria-label="radar DA GERAÇÃO - Página inicial"
         >
-          <span className="font-extrabold text-2xl sm:text-[1.625rem] tracking-tight leading-none text-[#245C45]">
-            RADAR
-          </span>
-          <span className="text-xs sm:text-[0.8125rem] font-normal text-[#687169] tracking-normal leading-tight mt-0.5">
-            da geração
-          </span>
+          <RadarLogo size="md" />
         </Link>
 
         {/* Right Nav + CTA */}
         <div className="flex items-center gap-6 sm:gap-8">
           {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-7 text-[0.9375rem] font-medium text-[#687169]">
+          <nav className="hidden md:flex items-center gap-7 text-[0.9375rem] font-medium text-[#5C6E67]">
             <Link
               to="/#categorias"
               onClick={handleOQueRecebeClick}
-              className="hover:text-[#245C45] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#245C45] rounded"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] rounded"
             >
               O que você recebe
             </Link>
             <Link
               to="/edicao/001"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#245C45] rounded"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] rounded"
             >
               Última edição
             </Link>
             <Link
               to="/sobre"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#245C45] rounded"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] rounded"
             >
               Sobre
             </Link>
@@ -101,10 +97,9 @@ export function Header({ onSubscribeClick }: HeaderProps) {
           <button
             type="button"
             onClick={handleReceberClick}
-            className="inline-flex items-center justify-center bg-[#245C45] hover:bg-[#1D4A38] active:scale-[0.98] text-white font-bold text-xs sm:text-[0.875rem] uppercase tracking-wider px-4 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-150 shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#245C45] focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center bg-[#113D30] hover:bg-[#0C2D23] active:scale-[0.98] text-[#FBFAF6] font-bold text-xs sm:text-[0.875rem] tracking-wide px-4 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-150 shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] focus-visible:ring-offset-2"
           >
-            <span className="md:hidden">Receber</span>
-            <span className="hidden md:inline">RECEBER O RADAR</span>
+            Receber o Radar
           </button>
         </div>
       </div>
@@ -114,40 +109,40 @@ export function Header({ onSubscribeClick }: HeaderProps) {
 
 export function Footer() {
   return (
-    <footer className="w-full bg-[#FAFAF7] border-t border-[#E2E5DF] pt-14 pb-12 mt-auto">
+    <footer className="w-full bg-[#FBFAF6] border-t border-[#E7E5DC] pt-14 pb-12 mt-auto">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-10 border-b border-[#E2E5DF]">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 pb-10 border-b border-[#E7E5DC]">
           {/* Brand & description */}
           <div className="max-w-md">
-            <Link to="/" className="inline-flex flex-col mb-3">
-              <span className="font-extrabold text-2xl tracking-tight leading-none text-[#245C45]">
-                RADAR
-              </span>
-              <span className="text-xs font-normal text-[#687169] leading-tight mt-0.5">
-                da geração
-              </span>
+            <Link
+              to="/"
+              className="inline-block mb-4"
+              aria-label="radar DA GERAÇÃO - Página inicial"
+            >
+              <RadarLogo size="md" />
             </Link>
-            <p className="text-[#687169] text-sm sm:text-[0.9375rem] leading-relaxed">
-              Educação, tecnologia, dinheiro e carreira para entender o futuro da próxima geração.
+            <p className="text-[#5C6E67] text-sm sm:text-[0.9375rem] leading-relaxed">
+              Boletim, O Futuro Hoje, Mundo Conectado e Plano de Voo para entender o futuro da
+              próxima geração.
             </p>
           </div>
 
           {/* Links list */}
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm sm:text-[0.9375rem] font-medium text-[#687169]">
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm sm:text-[0.9375rem] font-medium text-[#5C6E67]">
             <Link
               to="/edicao/001"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1"
             >
               Última edição
             </Link>
-            <Link to="/sobre" className="hover:text-[#245C45] transition-colors duration-150 py-1">
+            <Link to="/sobre" className="hover:text-[#113D30] transition-colors duration-150 py-1">
               Sobre
             </Link>
             <a
               href={RADAR_CONSTANTS.INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1"
             >
               Instagram
             </a>
@@ -155,19 +150,19 @@ export function Footer() {
               href={RADAR_CONSTANTS.LINKEDIN_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1"
             >
               LinkedIn
             </a>
             <Link
               to="/privacidade"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1"
             >
               Política de Privacidade
             </Link>
             <Link
               to="/contato"
-              className="hover:text-[#245C45] transition-colors duration-150 py-1"
+              className="hover:text-[#113D30] transition-colors duration-150 py-1"
             >
               Contato
             </Link>
@@ -175,9 +170,9 @@ export function Footer() {
         </div>
 
         {/* Bottom copyright line */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[0.8125rem] text-[#687169]">
-          <p>© {RADAR_CONSTANTS.YEAR} RADAR</p>
-          <p className="text-[#687169]/80">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-[0.8125rem] text-[#5C6E67]">
+          <p>© {RADAR_CONSTANTS.YEAR} radar DA GERAÇÃO</p>
+          <p className="text-[#5C6E67]/80">
             Publicação semanal gratuita para famílias, professores e gestores.
           </p>
         </div>

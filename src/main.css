@@ -1,6 +1,6 @@
 /* Global styles - Theme, font, utilities, animations and global components */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,34 +8,34 @@
 
 @layer base {
   :root {
-    /* RADAR palette: #FAFAF7 (bg), #17221C (text), #245C45 (green), #DDF36A (accent), #E2E5DF (lines) */
-    --background: 50 20% 97.5%;
-    --foreground: 147 19% 11%;
+    /* RADAR official palette: #FBFAF6 (Warm white), #113D30 (Verde principal), #7C74AC (Lavanda texto), #9388BF (Lavanda claro) */
+    --background: 43 33% 97.5%;
+    --foreground: 164 56% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 147 19% 11%;
+    --card-foreground: 164 56% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 147 19% 11%;
+    --popover-foreground: 164 56% 15%;
 
-    --primary: 156 43% 25%;
-    --primary-foreground: 50 20% 97.5%;
+    --primary: 164 56% 15%;
+    --primary-foreground: 43 33% 97.5%;
 
-    --secondary: 130 8% 94%;
-    --secondary-foreground: 147 19% 11%;
+    --secondary: 249 26% 94%;
+    --secondary-foreground: 164 56% 15%;
 
-    --muted: 130 8% 94%;
-    --muted-foreground: 131 4% 43%;
+    --muted: 249 20% 95%;
+    --muted-foreground: 160 8% 40%;
 
-    --accent: 70 82% 68%;
-    --accent-foreground: 147 19% 11%;
+    --accent: 250 28% 57%;
+    --accent-foreground: 43 33% 97.5%;
 
     --destructive: 15 50% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 90 6% 89%;
-    --input: 90 6% 89%;
-    --ring: 156 43% 25%;
+    --border: 45 15% 89%;
+    --input: 45 15% 89%;
+    --ring: 164 56% 15%;
 
     --radius: 0.625rem;
 
@@ -126,13 +126,13 @@
       'Segoe UI',
       Roboto,
       sans-serif;
-    background-color: #fafaf7;
-    color: #17221c;
+    background-color: #fbfaf6;
+    color: #113d30;
   }
 
   body {
-    background-color: #fafaf7;
-    color: #17221c;
+    background-color: #fbfaf6;
+    color: #113d30;
     font-family:
       'DM Sans',
       -apple-system,

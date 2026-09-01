@@ -21,7 +21,7 @@ export default function Layout() {
   }, [location.pathname, location.hash])
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAFAF7] text-[#17221C] antialiased selection:bg-[#DDF36A] selection:text-[#17221C]">
+    <div className="flex flex-col min-h-screen bg-[#FBFAF6] text-[#113D30] antialiased selection:bg-[#9388BF]/30 selection:text-[#113D30]">
       <Header />
       <main className="flex-grow">
         <Outlet />
