@@ -29,10 +29,10 @@ export default function Index() {
 
               {/* Headline */}
               <h1 className="text-3xl sm:text-5xl lg:text-[3.6rem] font-extrabold text-[#113D30] tracking-tight leading-[1.12]">
-                <span>O futuro está mudando.</span>
+                <span>As gerações estão mudando</span>
                 <br />
                 <span className="relative inline-block mt-1 sm:mt-2">
-                  <span className="relative z-10">A gente te ajuda a acompanhar.</span>
+                  <span className="relative z-10">Acompanhe as transformações do futuro</span>
                   {/* Subtle soft lavender underline bar for contrast */}
                   <span
                     className="absolute inset-x-0 bottom-1 sm:bottom-2 h-3.5 sm:h-4.5 bg-[#9388BF]/25 -z-0 rounded-sm"
