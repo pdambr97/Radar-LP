@@ -48,6 +48,8 @@ export function SignupForm() {
   const nameInputId = useId()
   const emailInputId = useId()
   const phoneInputId = useId()
+  const channelEmailId = useId()
+  const channelWhatsappId = useId()
   const consentEmailId = useId()
   const consentWhatsappId = useId()
 
@@ -64,6 +66,9 @@ export function SignupForm() {
   const [perfil, setPerfil] = useState<string>('')
   const [faixaEtaria, setFaixaEtaria] = useState<string>('')
   const [temas, setTemas] = useState<string[]>([])
+
+  // Armazena dados submetidos do Passo 1 para unificar com o Passo 2 caso salvo
+  const [savedSignupData, setSavedSignupData] = useState<SignupData | null>(null)
 
   // UI Flow states
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -96,10 +101,10 @@ export function SignupForm() {
     if (channelEmail) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!email.trim() || !emailRegex.test(email.trim())) {
-        newErrors.email = 'Informe um endereço de e-mail válido.'
+        newErrors.email = 'Informe seu endereço de e-mail.'
       }
       if (!consentEmail) {
-        newErrors.consentEmail = 'É necessário concordar para receber por e-mail.'
+        newErrors.consentEmail = 'É necessário confirmar o recebimento por e-mail.'
       }
     }
 
@@ -109,7 +114,7 @@ export function SignupForm() {
         newErrors.whatsapp = 'Informe um número de WhatsApp válido com DDD (ex: 11 98765-4321).'
       }
       if (!consentWhatsapp) {
-        newErrors.consentWhatsapp = 'É necessário concordar para receber pelo WhatsApp.'
+        newErrors.consentWhatsapp = 'É necessário confirmar o recebimento pelo WhatsApp.'
       }
     }
 
@@ -123,19 +128,43 @@ export function SignupForm() {
 
     setIsSubmitting(true)
 
-    // Simulated submission in memory (or persist if backend is present)
+    const payload: SignupData = {
+      nome: nome.trim(),
+      canais: {
+        email: channelEmail,
+        whatsapp: channelWhatsapp,
+      },
+      email: channelEmail ? email.trim() : '',
+      whatsapp: channelWhatsapp ? whatsapp.trim() : '',
+      consentEmail: channelEmail && consentEmail,
+      consentWhatsapp: channelWhatsapp && consentWhatsapp,
+    }
+
+    // Persistência simulada em memória (ou chamada a backend se conectado futuramente)
     setTimeout(() => {
+      setSavedSignupData(payload)
       setIsSubmitting(false)
       setIsSubmitted(true)
-      // Log for verification
-      // console.log('RADAR subscription created:', { nome, email, whatsapp, channelEmail, channelWhatsapp })
     }, 250)
   }
 
   const handleSavePasso2 = () => {
-    // Save optional preferences
+    const completeData: SignupData = {
+      ...(savedSignupData ?? {
+        nome: nome.trim(),
+        canais: { email: channelEmail, whatsapp: channelWhatsapp },
+        email: channelEmail ? email.trim() : '',
+        whatsapp: channelWhatsapp ? whatsapp.trim() : '',
+        consentEmail: channelEmail && consentEmail,
+        consentWhatsapp: channelWhatsapp && consentWhatsapp,
+      }),
+      perfil: perfil || undefined,
+      faixaEtaria: faixaEtaria || undefined,
+      temas: temas.length > 0 ? temas : undefined,
+    }
+
+    setSavedSignupData(completeData)
     setStep2Finished('Pronto! Seu RADAR vai ficar ainda mais relevante para você.')
-    // console.log('RADAR preferences updated:', { perfil, faixaEtaria, temas })
   }
 
   const handleSkipPasso2 = () => {
@@ -190,153 +219,167 @@ export function SignupForm() {
                 )}
               </div>
 
-              {/* Pergunta Canais */}
-              <div>
-                <span className="block text-sm font-bold text-[#113D30] mb-2">
-                  Como você quer receber?
-                </span>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Option E-mail */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !channelEmail
-                      setChannelEmail(next)
-                      if (next) setConsentEmail(true)
-                    }}
-                    className={`flex items-center justify-between px-4 py-3 rounded-[10px] border text-sm font-semibold transition-colors ${
-                      channelEmail
-                        ? 'bg-[#113D30] text-[#FBFAF6] border-[#113D30]'
-                        : 'bg-[#FBFAF6] text-[#113D30] border-[#E7E5DC] hover:border-[#7C74AC]'
-                    }`}
-                  >
-                    <span>E-mail</span>
-                    <div
-                      className={`w-4 h-4 rounded flex items-center justify-center ${
-                        channelEmail ? 'bg-white text-[#113D30]' : 'border border-[#5C6E67]/50'
-                      }`}
-                    >
-                      {channelEmail && <Check className="w-3 h-3 stroke-[3]" />}
-                    </div>
-                  </button>
-
-                  {/* Option WhatsApp */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !channelWhatsapp
-                      setChannelWhatsapp(next)
-                      if (next) setConsentWhatsapp(true)
-                    }}
-                    className={`flex items-center justify-between px-4 py-3 rounded-[10px] border text-sm font-semibold transition-colors ${
-                      channelWhatsapp
-                        ? 'bg-[#113D30] text-[#FBFAF6] border-[#113D30]'
-                        : 'bg-[#FBFAF6] text-[#113D30] border-[#E7E5DC] hover:border-[#7C74AC]'
-                    }`}
-                  >
-                    <span>WhatsApp</span>
-                    <div
-                      className={`w-4 h-4 rounded flex items-center justify-center ${
-                        channelWhatsapp ? 'bg-white text-[#113D30]' : 'border border-[#5C6E67]/50'
-                      }`}
-                    >
-                      {channelWhatsapp && <Check className="w-3 h-3 stroke-[3]" />}
-                    </div>
-                  </button>
-                </div>
-                {errors.canais && (
-                  <p className="mt-1.5 text-xs text-[#B85C3C] font-medium">{errors.canais}</p>
+              {/* Campo E-mail com seleção e consentimento embaixo */}
+              <div className="space-y-2">
+                <label htmlFor={emailInputId} className="block text-sm font-bold text-[#113D30]">
+                  E-mail
+                </label>
+                <input
+                  id={emailInputId}
+                  type="email"
+                  value={email}
+                  disabled={!channelEmail}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={
+                    channelEmail ? 'seu.email@exemplo.com' : 'Marque a opção abaixo para ativar'
+                  }
+                  autoComplete="email"
+                  className={`w-full px-4 py-3 rounded-[10px] text-[#113D30] placeholder:text-[#5C6E67]/60 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-[#113D30]/20 ${
+                    channelEmail
+                      ? 'bg-[#FBFAF6] focus:bg-white border focus:border-[#113D30]'
+                      : 'bg-[#F2EFE9]/60 text-[#5C6E67] border border-[#E7E5DC] cursor-not-allowed opacity-75'
+                  } ${errors.email ? 'border-[#B85C3C]' : 'border-[#E7E5DC]'}`}
+                />
+                {errors.email && (
+                  <p className="text-xs text-[#B85C3C] font-medium">{errors.email}</p>
                 )}
+
+                {/* Checkbox de seleção do canal E-mail embaixo do campo */}
+                <div className="pt-1 space-y-1.5">
+                  <label
+                    htmlFor={channelEmailId}
+                    className="flex items-start gap-2.5 cursor-pointer select-none"
+                  >
+                    <input
+                      id={channelEmailId}
+                      type="checkbox"
+                      checked={channelEmail}
+                      onChange={(e) => {
+                        const checked = e.target.checked
+                        setChannelEmail(checked)
+                        setConsentEmail(checked)
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-[#E7E5DC] text-[#113D30] accent-[#113D30] focus:ring-[#113D30]"
+                    />
+                    <span className="text-xs text-[#5C6E67] leading-tight">
+                      Quero receber as edições por{' '}
+                      <strong className="text-[#113D30] font-semibold">E-mail</strong>
+                    </span>
+                  </label>
+
+                  {/* Consentimento específico exibido quando o canal está selecionado */}
+                  {channelEmail && (
+                    <label
+                      htmlFor={consentEmailId}
+                      className="flex items-start gap-2.5 pl-6 pt-0.5 cursor-pointer select-none"
+                    >
+                      <input
+                        id={consentEmailId}
+                        type="checkbox"
+                        checked={consentEmail}
+                        onChange={(e) => setConsentEmail(e.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-[#E7E5DC] text-[#113D30] accent-[#113D30] focus:ring-[#113D30]"
+                      />
+                      <span className="text-[11px] text-[#5C6E67] leading-tight">
+                        Concordo em receber a curadoria semanal e comunicados do RADAR por e-mail.
+                      </span>
+                    </label>
+                  )}
+                  {errors.consentEmail && (
+                    <p className="pl-6 text-xs text-[#B85C3C] font-medium">{errors.consentEmail}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Conditional Email Field */}
-              {channelEmail && (
-                <div className="space-y-2 pt-1">
-                  <label htmlFor={emailInputId} className="block text-sm font-bold text-[#113D30]">
-                    E-mail
-                  </label>
-                  <input
-                    id={emailInputId}
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu.email@exemplo.com"
-                    autoComplete="email"
-                    className={`w-full px-4 py-3 bg-[#FBFAF6] border rounded-[10px] text-[#113D30] placeholder:text-[#5C6E67]/60 text-[0.9375rem] transition-colors focus:outline-none focus:bg-white focus:border-[#113D30] focus:ring-2 focus:ring-[#113D30]/20 ${
-                      errors.email ? 'border-[#B85C3C]' : 'border-[#E7E5DC]'
+              {/* Campo WhatsApp com seleção e consentimento embaixo */}
+              <div className="space-y-2">
+                <label htmlFor={phoneInputId} className="block text-sm font-bold text-[#113D30]">
+                  WhatsApp
+                </label>
+                <div className="flex items-center">
+                  <span
+                    className={`inline-flex items-center px-3.5 py-3 rounded-l-[10px] border border-r-0 text-sm font-medium transition-colors ${
+                      channelWhatsapp
+                        ? 'border-[#E7E5DC] bg-[#FBFAF6] text-[#5C6E67]'
+                        : 'border-[#E7E5DC] bg-[#F2EFE9]/60 text-[#5C6E67]/70'
                     }`}
+                  >
+                    +55
+                  </span>
+                  <input
+                    id={phoneInputId}
+                    type="tel"
+                    value={whatsapp}
+                    disabled={!channelWhatsapp}
+                    onChange={handlePhoneChange}
+                    placeholder={
+                      channelWhatsapp ? '(11) 98765-4321' : 'Marque a opção abaixo para ativar'
+                    }
+                    autoComplete="tel-national"
+                    className={`w-full px-4 py-3 rounded-r-[10px] text-[#113D30] placeholder:text-[#5C6E67]/60 text-[0.9375rem] transition-colors focus:outline-none focus:ring-2 focus:ring-[#113D30]/20 ${
+                      channelWhatsapp
+                        ? 'bg-[#FBFAF6] focus:bg-white border focus:border-[#113D30]'
+                        : 'bg-[#F2EFE9]/60 text-[#5C6E67] border border-[#E7E5DC] cursor-not-allowed opacity-75'
+                    } ${errors.whatsapp ? 'border-[#B85C3C]' : 'border-[#E7E5DC]'}`}
                   />
-                  {errors.email && (
-                    <p className="text-xs text-[#B85C3C] font-medium">{errors.email}</p>
-                  )}
+                </div>
+                {errors.whatsapp && (
+                  <p className="text-xs text-[#B85C3C] font-medium">{errors.whatsapp}</p>
+                )}
 
-                  {/* Consent for E-mail */}
+                {/* Checkbox de seleção do canal WhatsApp embaixo do campo */}
+                <div className="pt-1 space-y-1.5">
                   <label
-                    htmlFor={consentEmailId}
-                    className="flex items-start gap-2.5 pt-1 cursor-pointer select-none"
+                    htmlFor={channelWhatsappId}
+                    className="flex items-start gap-2.5 cursor-pointer select-none"
                   >
                     <input
-                      id={consentEmailId}
+                      id={channelWhatsappId}
                       type="checkbox"
-                      checked={consentEmail}
-                      onChange={(e) => setConsentEmail(e.target.checked)}
+                      checked={channelWhatsapp}
+                      onChange={(e) => {
+                        const checked = e.target.checked
+                        setChannelWhatsapp(checked)
+                        setConsentWhatsapp(checked)
+                      }}
                       className="mt-0.5 h-4 w-4 rounded border-[#E7E5DC] text-[#113D30] accent-[#113D30] focus:ring-[#113D30]"
                     />
                     <span className="text-xs text-[#5C6E67] leading-tight">
-                      Quero receber a newsletter semanal por e-mail.
+                      Quero receber as edições por{' '}
+                      <strong className="text-[#113D30] font-semibold">WhatsApp</strong>
                     </span>
                   </label>
-                  {errors.consentEmail && (
-                    <p className="text-xs text-[#B85C3C] font-medium">{errors.consentEmail}</p>
+
+                  {/* Consentimento específico exibido quando o canal está selecionado */}
+                  {channelWhatsapp && (
+                    <label
+                      htmlFor={consentWhatsappId}
+                      className="flex items-start gap-2.5 pl-6 pt-0.5 cursor-pointer select-none"
+                    >
+                      <input
+                        id={consentWhatsappId}
+                        type="checkbox"
+                        checked={consentWhatsapp}
+                        onChange={(e) => setConsentWhatsapp(e.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-[#E7E5DC] text-[#113D30] accent-[#113D30] focus:ring-[#113D30]"
+                      />
+                      <span className="text-[11px] text-[#5C6E67] leading-tight">
+                        Concordo em receber mensagens do RADAR no número informado via WhatsApp.
+                      </span>
+                    </label>
+                  )}
+                  {errors.consentWhatsapp && (
+                    <p className="pl-6 text-xs text-[#B85C3C] font-medium">
+                      {errors.consentWhatsapp}
+                    </p>
                   )}
                 </div>
-              )}
+              </div>
 
-              {/* Conditional WhatsApp Field */}
-              {channelWhatsapp && (
-                <div className="space-y-2 pt-1">
-                  <label htmlFor={phoneInputId} className="block text-sm font-bold text-[#113D30]">
-                    WhatsApp
-                  </label>
-                  <div className="flex items-center">
-                    <span className="inline-flex items-center px-3.5 py-3 rounded-l-[10px] border border-r-0 border-[#E7E5DC] bg-[#FBFAF6] text-[#5C6E67] text-sm font-medium">
-                      +55
-                    </span>
-                    <input
-                      id={phoneInputId}
-                      type="tel"
-                      value={whatsapp}
-                      onChange={handlePhoneChange}
-                      placeholder="(11) 98765-4321"
-                      autoComplete="tel-national"
-                      className={`w-full px-4 py-3 bg-[#FBFAF6] border rounded-r-[10px] text-[#113D30] placeholder:text-[#5C6E67]/60 text-[0.9375rem] transition-colors focus:outline-none focus:bg-white focus:border-[#113D30] focus:ring-2 focus:ring-[#113D30]/20 ${
-                        errors.whatsapp ? 'border-[#B85C3C]' : 'border-[#E7E5DC]'
-                      }`}
-                    />
-                  </div>
-                  {errors.whatsapp && (
-                    <p className="text-xs text-[#B85C3C] font-medium">{errors.whatsapp}</p>
-                  )}
-
-                  {/* Consent for WhatsApp */}
-                  <label
-                    htmlFor={consentWhatsappId}
-                    className="flex items-start gap-2.5 pt-1 cursor-pointer select-none"
-                  >
-                    <input
-                      id={consentWhatsappId}
-                      type="checkbox"
-                      checked={consentWhatsapp}
-                      onChange={(e) => setConsentWhatsapp(e.target.checked)}
-                      className="mt-0.5 h-4 w-4 rounded border-[#E7E5DC] text-[#113D30] accent-[#113D30] focus:ring-[#113D30]"
-                    />
-                    <span className="text-xs text-[#5C6E67] leading-tight">
-                      Quero receber a newsletter semanal por WhatsApp.
-                    </span>
-                  </label>
-                  {errors.consentWhatsapp && (
-                    <p className="text-xs text-[#B85C3C] font-medium">{errors.consentWhatsapp}</p>
-                  )}
+              {/* Erro de canal geral (caso nenhum canal tenha sido marcado) */}
+              {errors.canais && (
+                <div className="p-3 bg-[#B85C3C]/10 border border-[#B85C3C]/20 rounded-[10px]">
+                  <p className="text-xs text-[#B85C3C] font-medium">{errors.canais}</p>
                 </div>
               )}
 
