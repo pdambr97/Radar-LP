@@ -12,9 +12,14 @@ export default async function handler(req, res) {
       .json({ error: 'Informe nome e ao menos um contato (email ou whatsapp).' })
   }
 
-  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, LEADLOVERS_WEBHOOK_URL } = process.env
+  const {
+    SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY,
+    LEADLOVERS_WEBHOOK_URL_EMAIL,
+    LEADLOVERS_WEBHOOK_URL_WHATSAPP,
+  } = process.env
 
-  const result = { supabase: null, leadlovers: null }
+  const result = { supabase: null, leadlovers: { email: null, whatsapp: null } }
 
   if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
     try {
@@ -41,31 +46,36 @@ export default async function handler(req, res) {
     result.supabase = { ok: false, error: 'SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não configurados.' }
   }
 
-  if (!LEADLOVERS_WEBHOOK_URL) {
-    result.leadlovers = { ok: false, error: 'LEADLOVERS_WEBHOOK_URL não configurada.' }
-    return res.status(502).json(result)
-  }
-
-  try {
-    const leadloversRes = await fetch(LEADLOVERS_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, email, telefone: whatsapp }),
-    })
-
-    if (!leadloversRes.ok) {
-      result.leadlovers = {
-        ok: false,
-        status: leadloversRes.status,
-        body: await leadloversRes.text(),
-      }
-      return res.status(502).json(result)
+  const callLeadLoversWebhook = async (url) => {
+    if (!url) {
+      return { ok: false, error: 'URL do webhook não configurada.' }
     }
 
-    result.leadlovers = { ok: true }
-    return res.status(200).json(result)
-  } catch (err) {
-    result.leadlovers = { ok: false, error: err.message }
-    return res.status(502).json(result)
+    try {
+      const webhookRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, telefone: whatsapp }),
+      })
+
+      if (!webhookRes.ok) {
+        return { ok: false, status: webhookRes.status, body: await webhookRes.text() }
+      }
+
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, error: err.message }
+    }
   }
+
+  const [emailResult, whatsappResult] = await Promise.all([
+    callLeadLoversWebhook(LEADLOVERS_WEBHOOK_URL_EMAIL),
+    callLeadLoversWebhook(LEADLOVERS_WEBHOOK_URL_WHATSAPP),
+  ])
+
+  result.leadlovers = { email: emailResult, whatsapp: whatsappResult }
+
+  const leadloversOk = emailResult.ok || whatsappResult.ok
+
+  return res.status(leadloversOk ? 200 : 502).json(result)
 }
