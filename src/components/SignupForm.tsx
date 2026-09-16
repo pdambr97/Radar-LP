@@ -22,9 +22,9 @@ const ROLES_OPTIONS = ['Família', 'Professor(a)', 'Gestor(a)', 'Trabalho com ed
 const AGE_RANGES_OPTIONS = ['0–5', '6–10', '11–14', '15–17', '18+']
 
 const TOPICS_OPTIONS = [
-  'Boletim (Escola & Gestão)',
+  'Boletim (Educação)',
   'O Futuro Hoje (IA & Tecnologia)',
-  'Mundo Conectado (Internet & Redes)',
+  'Mundo Conectado (Redes Sociais)',
   'Plano de Voo (Finanças & Futuro)',
 ]
 
