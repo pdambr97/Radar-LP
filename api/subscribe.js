@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { nome, email, whatsapp } = req.body ?? {}
+  const { nome, email, whatsapp, voce_e, faixa_etaria, temas_interesse } = req.body ?? {}
 
   if (!nome || (!email && !whatsapp)) {
     return res
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
           Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
           Prefer: 'return=minimal',
         },
-        body: JSON.stringify({ nome, email, whatsapp }),
+        body: JSON.stringify({ nome, email, whatsapp, voce_e, faixa_etaria, temas_interesse }),
       })
 
       if (!supabaseRes.ok) {

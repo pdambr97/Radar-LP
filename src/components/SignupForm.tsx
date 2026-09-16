@@ -17,7 +17,7 @@ export interface SignupData {
   temas: string[]
 }
 
-const ROLES_OPTIONS = ['Família', 'Professor(a)', 'Gestor(a)', 'Trabalho com educação', 'Outro']
+const ROLES_OPTIONS = ['Família', 'Professor(a)', 'Gestor(a)', 'Outro']
 
 const AGE_RANGES_OPTIONS = ['0–5', '6–10', '11–14', '15–17', '18+']
 
@@ -175,6 +175,9 @@ export function SignupForm() {
           nome: payload.nome,
           email: payload.email,
           whatsapp: payload.whatsapp,
+          voce_e: payload.perfil,
+          faixa_etaria: payload.faixaEtaria,
+          temas_interesse: payload.temas.join(', '),
         }),
       })
 
