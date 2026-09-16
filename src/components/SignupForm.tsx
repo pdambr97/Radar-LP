@@ -72,6 +72,7 @@ export function SignupForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState<string>('')
 
   // Phone input helper
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,11 +145,12 @@ export function SignupForm() {
     setStep(1)
   }
 
-  const handleSubmitFinal = (e: React.FormEvent) => {
+  const handleSubmitFinal = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validatePasso2()) return
 
     setIsSubmitting(true)
+    setSubmitError('')
 
     const payload: SignupData = {
       nome: nome.trim(),
@@ -165,12 +167,30 @@ export function SignupForm() {
       temas,
     }
 
-    // Persistência simulada em memória (ou chamada a backend se conectado futuramente)
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: payload.nome,
+          email: payload.email,
+          whatsapp: payload.whatsapp,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Falha ao concluir o cadastro. Tente novamente em instantes.')
+      }
+
       setSavedSignupData(payload)
-      setIsSubmitting(false)
       setIsSubmitted(true)
-    }, 300)
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Falha ao concluir o cadastro. Tente novamente.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -565,6 +585,13 @@ export function SignupForm() {
                     <p className="text-xs text-[#B85C3C] font-medium mt-1">{errors.temas}</p>
                   )}
                 </div>
+
+                {/* Erro de submissão (falha ao chamar o backend) */}
+                {submitError && (
+                  <div className="p-3 bg-[#B85C3C]/10 border border-[#B85C3C]/20 rounded-[10px] mb-3">
+                    <p className="text-xs text-[#B85C3C] font-medium">{submitError}</p>
+                  </div>
+                )}
 
                 {/* Action buttons (Botão final "Personalizar e Concluir Cadastro" / "Entrar no Radar" e link/botão para voltar ao Passo 1) */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
