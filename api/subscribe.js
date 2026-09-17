@@ -65,9 +65,9 @@ async function subscribe(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nome,
-          email,
-          telefone: whatsapp,
+          Name: nome,
+          Email: email,
+          Phone: whatsapp,
           MachineCode: Number(machineCode),
           SequenceLevelCode: Number(sequenceLevelCode) || 1,
           ...(emailSequenceCode ? { EmailSequenceCode: Number(emailSequenceCode) } : {}),
