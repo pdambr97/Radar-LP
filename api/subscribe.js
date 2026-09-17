@@ -21,6 +21,7 @@ async function subscribe(req, res) {
     LEADLOVERS_MACHINE_CODE_WHATSAPP,
     LEADLOVERS_SEQUENCE_LEVEL_CODE_EMAIL,
     LEADLOVERS_SEQUENCE_LEVEL_CODE_WHATSAPP,
+    LEADLOVERS_EMAIL_SEQUENCE_CODE,
   } = process.env
 
   const result = { supabase: null, leadlovers: { email: null, whatsapp: null } }
@@ -50,7 +51,7 @@ async function subscribe(req, res) {
     result.supabase = { ok: false, error: 'SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não configurados.' }
   }
 
-  const callLeadLoversWebhook = async (url, machineCode, sequenceLevelCode) => {
+  const callLeadLoversWebhook = async (url, machineCode, sequenceLevelCode, emailSequenceCode) => {
     if (!url) {
       return { ok: false, error: 'URL do webhook não configurada.' }
     }
@@ -69,6 +70,7 @@ async function subscribe(req, res) {
           telefone: whatsapp,
           MachineCode: Number(machineCode),
           SequenceLevelCode: Number(sequenceLevelCode) || 1,
+          ...(emailSequenceCode ? { EmailSequenceCode: Number(emailSequenceCode) } : {}),
         }),
       })
 
@@ -87,6 +89,7 @@ async function subscribe(req, res) {
       LEADLOVERS_WEBHOOK_URL_EMAIL,
       LEADLOVERS_MACHINE_CODE_EMAIL,
       LEADLOVERS_SEQUENCE_LEVEL_CODE_EMAIL,
+      LEADLOVERS_EMAIL_SEQUENCE_CODE,
     ),
     callLeadLoversWebhook(
       LEADLOVERS_WEBHOOK_URL_WHATSAPP,
