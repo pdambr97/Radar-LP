@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+async function subscribe(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method not allowed' })
@@ -78,4 +78,12 @@ export default async function handler(req, res) {
   const leadloversOk = emailResult.ok || whatsappResult.ok
 
   return res.status(leadloversOk ? 200 : 502).json(result)
+}
+
+export default async function handler(req, res) {
+  try {
+    return await subscribe(req, res)
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
 }
