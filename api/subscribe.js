@@ -17,6 +17,10 @@ async function subscribe(req, res) {
     SUPABASE_SERVICE_ROLE_KEY,
     LEADLOVERS_WEBHOOK_URL_EMAIL,
     LEADLOVERS_WEBHOOK_URL_WHATSAPP,
+    LEADLOVERS_MACHINE_CODE_EMAIL,
+    LEADLOVERS_MACHINE_CODE_WHATSAPP,
+    LEADLOVERS_SEQUENCE_LEVEL_CODE_EMAIL,
+    LEADLOVERS_SEQUENCE_LEVEL_CODE_WHATSAPP,
   } = process.env
 
   const result = { supabase: null, leadlovers: { email: null, whatsapp: null } }
@@ -46,16 +50,26 @@ async function subscribe(req, res) {
     result.supabase = { ok: false, error: 'SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não configurados.' }
   }
 
-  const callLeadLoversWebhook = async (url) => {
+  const callLeadLoversWebhook = async (url, machineCode, sequenceLevelCode) => {
     if (!url) {
       return { ok: false, error: 'URL do webhook não configurada.' }
+    }
+
+    if (!machineCode) {
+      return { ok: false, error: 'Código da Máquina (MachineCode) não configurado.' }
     }
 
     try {
       const webhookRes = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, telefone: whatsapp }),
+        body: JSON.stringify({
+          nome,
+          email,
+          telefone: whatsapp,
+          MachineCode: Number(machineCode),
+          SequenceLevelCode: Number(sequenceLevelCode) || 1,
+        }),
       })
 
       if (!webhookRes.ok) {
@@ -69,8 +83,16 @@ async function subscribe(req, res) {
   }
 
   const [emailResult, whatsappResult] = await Promise.all([
-    callLeadLoversWebhook(LEADLOVERS_WEBHOOK_URL_EMAIL),
-    callLeadLoversWebhook(LEADLOVERS_WEBHOOK_URL_WHATSAPP),
+    callLeadLoversWebhook(
+      LEADLOVERS_WEBHOOK_URL_EMAIL,
+      LEADLOVERS_MACHINE_CODE_EMAIL,
+      LEADLOVERS_SEQUENCE_LEVEL_CODE_EMAIL,
+    ),
+    callLeadLoversWebhook(
+      LEADLOVERS_WEBHOOK_URL_WHATSAPP,
+      LEADLOVERS_MACHINE_CODE_WHATSAPP,
+      LEADLOVERS_SEQUENCE_LEVEL_CODE_WHATSAPP,
+    ),
   ])
 
   result.leadlovers = { email: emailResult, whatsapp: whatsappResult }
