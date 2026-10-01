@@ -133,11 +133,41 @@ export function SignupForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validatePasso1()) return
+
     setErrors({})
-    setStep(2)
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: nome.trim(),
+          email: channelEmail ? email.trim() : '',
+          whatsapp: channelWhatsapp ? whatsapp.trim() : '',
+        }),
+      })
+
+      // A gravação no Supabase é o que realmente importa pra não perder o lead;
+      // falha isolada nos webhooks da LeadLovers (ex: 502) não deve travar o avanço.
+      const data = await response.json().catch(() => null)
+
+      if (!data?.supabase?.ok) {
+        throw new Error('Falha ao salvar seu cadastro. Tente novamente em instantes.')
+      }
+
+      setStep(2)
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Falha ao salvar seu cadastro. Tente novamente.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleBackToStep1 = () => {
@@ -150,7 +180,6 @@ export function SignupForm() {
     if (!validatePasso2()) return
 
     setIsSubmitting(true)
-    setSubmitError('')
 
     const payload: SignupData = {
       nome: nome.trim(),
@@ -167,33 +196,35 @@ export function SignupForm() {
       temas,
     }
 
-    try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: payload.nome,
-          email: payload.email,
-          whatsapp: payload.whatsapp,
-          voce_e: payload.perfil,
-          faixa_etaria: payload.faixaEtaria,
-          temas_interesse: payload.temas.join(', '),
-        }),
-      })
+    // O lead já foi salvo no Passo 1 (nome/email/whatsapp + webhooks da LeadLovers).
+    // Esta chamada só atualiza os campos de personalização; falhas aqui não podem
+    // bloquear a pessoa nem travar a tela de sucesso.
+    if (payload.email) {
+      try {
+        const response = await fetch('/api/personalize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: payload.email,
+            voce_e: payload.perfil,
+            faixa_etaria: payload.faixaEtaria,
+            temas_interesse: payload.temas.join(', '),
+          }),
+        })
 
-      if (!response.ok) {
-        throw new Error('Falha ao concluir o cadastro. Tente novamente em instantes.')
+        if (!response.ok) {
+          console.error('Falha ao salvar personalização do lead:', await response.text())
+        }
+      } catch (err) {
+        console.error('Falha ao salvar personalização do lead:', err)
       }
-
-      setSavedSignupData(payload)
-      setIsSubmitted(true)
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : 'Falha ao concluir o cadastro. Tente novamente.',
-      )
-    } finally {
-      setIsSubmitting(false)
+    } else {
+      console.warn('Personalização não enviada: lead sem e-mail cadastrado no Passo 1.')
     }
+
+    setSavedSignupData(payload)
+    setIsSubmitted(true)
+    setIsSubmitting(false)
   }
 
   return (
@@ -432,6 +463,13 @@ export function SignupForm() {
                 </div>
               )}
 
+              {/* Erro de submissão (falha ao chamar o backend) */}
+              {submitError && (
+                <div className="p-3 bg-[#B85C3C]/10 border border-[#B85C3C]/20 rounded-[10px]">
+                  <p className="text-xs text-[#B85C3C] font-medium">{submitError}</p>
+                </div>
+              )}
+
               {/* Texto de suporte e botão de avançar para o Passo 2 */}
               <div className="pt-2">
                 <p className="text-xs text-[#5C6E67] text-center mb-2.5 leading-relaxed">
@@ -440,10 +478,11 @@ export function SignupForm() {
                 </p>
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 bg-[#113D30] hover:bg-[#0C2D23] active:scale-[0.99] text-[#FBFAF6] font-bold text-sm tracking-wide py-3.5 px-6 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] focus-visible:ring-offset-2 shadow-sm"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#113D30] hover:bg-[#0C2D23] active:scale-[0.99] text-[#FBFAF6] font-bold text-sm tracking-wide py-3.5 px-6 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#113D30] focus-visible:ring-offset-2 disabled:opacity-60 shadow-sm"
                 >
-                  <span>Entrar no Radar</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Salvando...' : 'Entrar no Radar'}</span>
+                  {!isSubmitting && <ArrowRight className="w-4 h-4" />}
                 </button>
                 <p className="text-[11px] text-[#5C6E67] text-center mt-2">
                   Próxima etapa: personalização das suas edições (Passo 2)
@@ -588,13 +627,6 @@ export function SignupForm() {
                     <p className="text-xs text-[#B85C3C] font-medium mt-1">{errors.temas}</p>
                   )}
                 </div>
-
-                {/* Erro de submissão (falha ao chamar o backend) */}
-                {submitError && (
-                  <div className="p-3 bg-[#B85C3C]/10 border border-[#B85C3C]/20 rounded-[10px] mb-3">
-                    <p className="text-xs text-[#B85C3C] font-medium">{submitError}</p>
-                  </div>
-                )}
 
                 {/* Action buttons (Botão final "Personalizar e Concluir Cadastro" / "Entrar no Radar" e link/botão para voltar ao Passo 1) */}
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
